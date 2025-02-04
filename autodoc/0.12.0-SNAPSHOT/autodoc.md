@@ -16,10 +16,10 @@ _None_
 
 ### Configuration
 
-| Key                      | Required | Type     | Default         | Pattern | Min | Max | Description |
-| ------------------------ | -------- | -------- | --------------- | ------- | --- | --- | ----------- |
-| `web.http.identity.port` | `*`      | `string` | `15151`         |         |     |     |             |
-| `web.http.identity.path` | `*`      | `string` | `/api/identity` |         |     |     |             |
+| Key                      | Required | Type     | Default         | Pattern | Min | Max | Description                   |
+| ------------------------ | -------- | -------- | --------------- | ------- | --- | --- | ----------------------------- |
+| `web.http.identity.port` | `*`      | `string` | `15151`         |         |     |     | Port for identity api context |
+| `web.http.identity.path` | `*`      | `string` | `/api/identity` |         |     |     | Path for identity api context |
 
 #### Provided services
 - `org.eclipse.edc.identityhub.spi.authorization.AuthorizationService`
@@ -28,6 +28,30 @@ _None_
 - `org.eclipse.edc.spi.types.TypeManager` (required)
 - `org.eclipse.edc.web.spi.configuration.PortMappingRegistry` (required)
 - `org.eclipse.edc.spi.system.apiversion.ApiVersionService` (required)
+
+Module `attestation-api`
+------------------------
+**Artifact:** org.eclipse.edc:attestation-api:0.12.0-SNAPSHOT
+
+**Categories:** _None_
+
+### Extension points
+_None_
+
+### Extensions
+#### Class: `org.eclipse.edc.issuerservice.api.admin.credentials.IssuerCredentialsAdminApiExtension`
+**Name:** "Issuer Service Credentials Admin API Extension"
+
+**Overview:** No overview provided.
+
+
+### Configuration_None_
+
+#### Provided services
+_None_
+
+#### Referenced (injected) services
+- `org.eclipse.edc.web.spi.WebService` (required)
 
 Module `credential-watchdog`
 ----------------------------
@@ -47,10 +71,10 @@ _None_
 
 ### Configuration
 
-| Key                                      | Required | Type     | Default | Pattern | Min | Max | Description |
-| ---------------------------------------- | -------- | -------- | ------- | ------- | --- | --- | ----------- |
-| `edc.iam.credential.status.check.period` | `*`      | `string` | `60`    |         |     |     |             |
-| `edc.iam.credential.status.check.delay`  |          | `string` | ``      |         |     |     |             |
+| Key                                      | Required | Type     | Default | Pattern | Min | Max | Description                                                                                                                                      |
+| ---------------------------------------- | -------- | -------- | ------- | ------- | --- | --- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `edc.iam.credential.status.check.period` | `*`      | `string` | `60`    |         |     |     | Period (in seconds) at which the Watchdog thread checks all stored credentials for their status. Configuring a number <=0 disables the Watchdog. |
+| `edc.iam.credential.status.check.delay`  |          | `string` | ``      |         |     |     | Initial delay (in seconds) before the Watchdog thread begins its work.                                                                           |
 
 #### Provided services
 _None_
@@ -60,6 +84,30 @@ _None_
 - `org.eclipse.edc.identityhub.spi.verifiablecredentials.CredentialStatusCheckService` (required)
 - `org.eclipse.edc.identityhub.spi.verifiablecredentials.store.CredentialStore` (required)
 - `org.eclipse.edc.transaction.spi.TransactionContext` (required)
+
+Module `credentials-api`
+------------------------
+**Artifact:** org.eclipse.edc:credentials-api:0.12.0-SNAPSHOT
+
+**Categories:** _None_
+
+### Extension points
+_None_
+
+### Extensions
+#### Class: `org.eclipse.edc.issuerservice.api.admin.credentials.IssuerCredentialsAdminApiExtension`
+**Name:** "Issuer Service Credentials Admin API Extension"
+
+**Overview:** No overview provided.
+
+
+### Configuration_None_
+
+#### Provided services
+_None_
+
+#### Referenced (injected) services
+- `org.eclipse.edc.web.spi.WebService` (required)
 
 Module `did-api`
 ----------------
@@ -110,6 +158,35 @@ Module `identity-hub-core`
 _None_
 
 ### Extensions
+#### Class: `org.eclipse.edc.identityhub.DefaultServicesExtension`
+**Name:** "IdentityHub Default Services Extension"
+
+**Overview:**  This extension provides core services for the IdentityHub that are not intended to be user-replaceable.
+
+
+
+### Configuration
+
+| Key                                            | Required | Type     | Default  | Pattern | Min | Max | Description                                                                                  |
+| ---------------------------------------------- | -------- | -------- | -------- | ------- | --- | --- | -------------------------------------------------------------------------------------------- |
+| `edc.iam.accesstoken.jti.validation`           | `*`      | `string` | `false`  |         |     |     | Activates the JTI check: access tokens can only be used once to guard against replay attacks |
+| `edc.iam.credential.revocation.cache.validity` | `*`      | `string` | `900000` |         |     |     | Validity period of cached StatusList2021 credential entries in milliseconds.                 |
+
+#### Provided services
+- `org.eclipse.edc.identityhub.spi.verifiablecredentials.store.CredentialStore`
+- `org.eclipse.edc.identityhub.spi.participantcontext.store.ParticipantContextStore`
+- `org.eclipse.edc.identityhub.spi.keypair.store.KeyPairResourceStore`
+- `org.eclipse.edc.identityhub.spi.transformation.ScopeToCriterionTransformer`
+- `org.eclipse.edc.iam.verifiablecredentials.spi.model.RevocationServiceRegistry`
+- `org.eclipse.edc.iam.identitytrust.spi.verification.SignatureSuiteRegistry`
+- `org.eclipse.edc.jwt.signer.spi.JwsSignerProvider`
+
+#### Referenced (injected) services
+- `org.eclipse.edc.token.spi.TokenValidationRulesRegistry` (required)
+- `org.eclipse.edc.spi.types.TypeManager` (required)
+- `org.eclipse.edc.keys.spi.PrivateKeyResolver` (required)
+- `org.eclipse.edc.jwt.validation.jti.JtiValidationStore` (required)
+
 #### Class: `org.eclipse.edc.identityhub.core.CoreServicesExtension`
 **Name:** "IdentityHub Core Services Extension"
 
@@ -148,35 +225,6 @@ _None_
 - `org.eclipse.edc.jwt.signer.spi.JwsSignerProvider` (required)
 - `org.eclipse.edc.transaction.spi.TransactionContext` (required)
 
-#### Class: `org.eclipse.edc.identityhub.DefaultServicesExtension`
-**Name:** "IdentityHub Default Services Extension"
-
-**Overview:**  This extension provides core services for the IdentityHub that are not intended to be user-replaceable.
-
-
-
-### Configuration
-
-| Key                                            | Required | Type     | Default  | Pattern | Min | Max | Description |
-| ---------------------------------------------- | -------- | -------- | -------- | ------- | --- | --- | ----------- |
-| `edc.iam.accesstoken.jti.validation`           | `*`      | `string` | `false`  |         |     |     |             |
-| `edc.iam.credential.revocation.cache.validity` | `*`      | `string` | `900000` |         |     |     |             |
-
-#### Provided services
-- `org.eclipse.edc.identityhub.spi.verifiablecredentials.store.CredentialStore`
-- `org.eclipse.edc.identityhub.spi.participantcontext.store.ParticipantContextStore`
-- `org.eclipse.edc.identityhub.spi.keypair.store.KeyPairResourceStore`
-- `org.eclipse.edc.identityhub.spi.transformation.ScopeToCriterionTransformer`
-- `org.eclipse.edc.iam.verifiablecredentials.spi.model.RevocationServiceRegistry`
-- `org.eclipse.edc.iam.identitytrust.spi.verification.SignatureSuiteRegistry`
-- `org.eclipse.edc.jwt.signer.spi.JwsSignerProvider`
-
-#### Referenced (injected) services
-- `org.eclipse.edc.token.spi.TokenValidationRulesRegistry` (required)
-- `org.eclipse.edc.spi.types.TypeManager` (required)
-- `org.eclipse.edc.keys.spi.PrivateKeyResolver` (required)
-- `org.eclipse.edc.jwt.validation.jti.JtiValidationStore` (required)
-
 Module `identity-hub-credentials-store-sql`
 -------------------------------------------
 **Artifact:** org.eclipse.edc:identity-hub-credentials-store-sql:0.12.0-SNAPSHOT
@@ -195,9 +243,9 @@ _None_
 
 ### Configuration
 
-| Key                                    | Required | Type     | Default   | Pattern | Min | Max | Description |
-| -------------------------------------- | -------- | -------- | --------- | ------- | --- | --- | ----------- |
-| `edc.sql.store.credentials.datasource` | `*`      | `string` | `default` |         |     |     |             |
+| Key                                    | Required | Type     | Default   | Pattern | Min | Max | Description               |
+| -------------------------------------- | -------- | -------- | --------- | ------- | --- | --- | ------------------------- |
+| `edc.sql.store.credentials.datasource` | `*`      | `string` | `default` |         |     |     | The datasource to be used |
 
 #### Provided services
 - `org.eclipse.edc.identityhub.spi.verifiablecredentials.store.CredentialStore`
@@ -220,20 +268,6 @@ Module `identity-hub-did`
 _None_
 
 ### Extensions
-#### Class: `org.eclipse.edc.identityhub.did.defaults.DidDefaultServicesExtension`
-**Name:** "DID Default Services Extension"
-
-**Overview:** No overview provided.
-
-
-### Configuration_None_
-
-#### Provided services
-- `org.eclipse.edc.identityhub.spi.did.store.DidResourceStore`
-
-#### Referenced (injected) services
-- `org.eclipse.edc.spi.query.CriterionOperatorRegistry` (required)
-
 #### Class: `org.eclipse.edc.identityhub.did.DidServicesExtension`
 **Name:** "DID Service Extension"
 
@@ -253,6 +287,20 @@ _None_
 - `org.eclipse.edc.keys.spi.KeyParserRegistry` (required)
 - `org.eclipse.edc.identityhub.spi.participantcontext.store.ParticipantContextStore` (required)
 
+#### Class: `org.eclipse.edc.identityhub.did.defaults.DidDefaultServicesExtension`
+**Name:** "DID Default Services Extension"
+
+**Overview:** No overview provided.
+
+
+### Configuration_None_
+
+#### Provided services
+- `org.eclipse.edc.identityhub.spi.did.store.DidResourceStore`
+
+#### Referenced (injected) services
+- `org.eclipse.edc.spi.query.CriterionOperatorRegistry` (required)
+
 Module `identity-hub-did-store-sql`
 -----------------------------------
 **Artifact:** org.eclipse.edc:identity-hub-did-store-sql:0.12.0-SNAPSHOT
@@ -271,9 +319,9 @@ _None_
 
 ### Configuration
 
-| Key                                    | Required | Type     | Default   | Pattern | Min | Max | Description |
-| -------------------------------------- | -------- | -------- | --------- | ------- | --- | --- | ----------- |
-| `edc.sql.store.didresource.datasource` | `*`      | `string` | `default` |         |     |     |             |
+| Key                                    | Required | Type     | Default   | Pattern | Min | Max | Description               |
+| -------------------------------------- | -------- | -------- | --------- | ------- | --- | --- | ------------------------- |
+| `edc.sql.store.didresource.datasource` | `*`      | `string` | `default` |         |     |     | The datasource to be used |
 
 #### Provided services
 - `org.eclipse.edc.identityhub.spi.did.store.DidResourceStore`
@@ -304,9 +352,9 @@ _None_
 
 ### Configuration
 
-| Key                                | Required | Type     | Default   | Pattern | Min | Max | Description |
-| ---------------------------------- | -------- | -------- | --------- | ------- | --- | --- | ----------- |
-| `edc.sql.store.keypair.datasource` | `*`      | `string` | `default` |         |     |     |             |
+| Key                                | Required | Type     | Default   | Pattern | Min | Max | Description               |
+| ---------------------------------- | -------- | -------- | --------- | ------- | --- | --- | ------------------------- |
+| `edc.sql.store.keypair.datasource` | `*`      | `string` | `default` |         |     |     | The datasource to be used |
 
 #### Provided services
 - `org.eclipse.edc.identityhub.spi.keypair.store.KeyPairResourceStore`
@@ -392,6 +440,24 @@ Module `identity-hub-participants`
 _None_
 
 ### Extensions
+#### Class: `org.eclipse.edc.identityhub.participantcontext.ParticipantContextCoordinatorExtension`
+**Name:** "ParticipantContext Extension"
+
+**Overview:** No overview provided.
+
+
+### Configuration_None_
+
+#### Provided services
+_None_
+
+#### Referenced (injected) services
+- `org.eclipse.edc.identityhub.spi.did.DidDocumentService` (required)
+- `org.eclipse.edc.identityhub.spi.keypair.KeyPairService` (required)
+- `java.time.Clock` (required)
+- `org.eclipse.edc.spi.event.EventRouter` (required)
+- `org.eclipse.edc.identityhub.spi.participantcontext.ParticipantContextService` (required)
+
 #### Class: `org.eclipse.edc.identityhub.participantcontext.ParticipantContextExtension`
 **Name:** "ParticipantContext Extension"
 
@@ -412,24 +478,6 @@ _None_
 - `org.eclipse.edc.spi.event.EventRouter` (required)
 - `org.eclipse.edc.identityhub.spi.did.store.DidResourceStore` (required)
 - `org.eclipse.edc.identityhub.spi.participantcontext.StsAccountProvisioner` (required)
-
-#### Class: `org.eclipse.edc.identityhub.participantcontext.ParticipantContextCoordinatorExtension`
-**Name:** "ParticipantContext Extension"
-
-**Overview:** No overview provided.
-
-
-### Configuration_None_
-
-#### Provided services
-_None_
-
-#### Referenced (injected) services
-- `org.eclipse.edc.identityhub.spi.did.DidDocumentService` (required)
-- `org.eclipse.edc.identityhub.spi.keypair.KeyPairService` (required)
-- `java.time.Clock` (required)
-- `org.eclipse.edc.spi.event.EventRouter` (required)
-- `org.eclipse.edc.identityhub.spi.participantcontext.ParticipantContextService` (required)
 
 Module `identityhub-api-authentication`
 ---------------------------------------
@@ -481,6 +529,37 @@ _None_
 #### Referenced (injected) services
 _None_
 
+Module `issuer-admin-api-configuration`
+---------------------------------------
+**Artifact:** org.eclipse.edc:issuer-admin-api-configuration:0.12.0-SNAPSHOT
+
+**Categories:** _None_
+
+### Extension points
+_None_
+
+### Extensions
+#### Class: `org.eclipse.edc.identityhub.api.configuration.IssuerAdminApiConfigurationExtension`
+**Name:** "Issuer Admin API Configuration Extension"
+
+**Overview:** No overview provided.
+
+
+### Configuration
+
+| Key                         | Required | Type     | Default             | Pattern | Min | Max | Description                      |
+| --------------------------- | -------- | -------- | ------------------- | ------- | --- | --- | -------------------------------- |
+| `web.http.issueradmin.port` | `*`      | `string` | `15152`             |         |     |     | Port for issueradmin api context |
+| `web.http.issueradmin.path` | `*`      | `string` | `/api/issuer/admin` |         |     |     | Path for issueradmin api context |
+
+#### Provided services
+- `org.eclipse.edc.identityhub.spi.authorization.AuthorizationService`
+
+#### Referenced (injected) services
+- `org.eclipse.edc.spi.types.TypeManager` (required)
+- `org.eclipse.edc.web.spi.configuration.PortMappingRegistry` (required)
+- `org.eclipse.edc.spi.system.apiversion.ApiVersionService` (required)
+
 Module `issuer-api`
 -------------------
 **Artifact:** org.eclipse.edc:issuer-api:0.12.0-SNAPSHOT
@@ -499,10 +578,10 @@ _None_
 
 ### Configuration
 
-| Key                        | Required | Type     | Default       | Pattern | Min | Max | Description |
-| -------------------------- | -------- | -------- | ------------- | ------- | --- | --- | ----------- |
-| `web.http.issuer-api.port` | `*`      | `string` | `13132`       |         |     |     |             |
-| `web.http.issuer-api.path` | `*`      | `string` | `/api/issuer` |         |     |     |             |
+| Key                        | Required | Type     | Default       | Pattern | Min | Max | Description                     |
+| -------------------------- | -------- | -------- | ------------- | ------- | --- | --- | ------------------------------- |
+| `web.http.issuer-api.port` | `*`      | `string` | `13132`       |         |     |     | Port for issuer-api api context |
+| `web.http.issuer-api.path` | `*`      | `string` | `/api/issuer` |         |     |     | Path for issuer-api api context |
 
 #### Provided services
 _None_
@@ -512,6 +591,88 @@ _None_
 - `org.eclipse.edc.spi.system.apiversion.ApiVersionService` (required)
 - `org.eclipse.edc.web.spi.WebService` (required)
 - `org.eclipse.edc.web.spi.configuration.PortMappingRegistry` (required)
+
+Module `issuerservice-core`
+---------------------------
+**Artifact:** org.eclipse.edc:issuerservice-core:0.12.0-SNAPSHOT
+
+**Categories:** _None_
+
+### Extension points
+_None_
+
+### Extensions
+#### Class: `org.eclipse.edc.issuerservice.defaults.DefaultServiceExtension`
+**Name:** "IssuerService Default Services Extension"
+
+**Overview:** No overview provided.
+
+
+### Configuration_None_
+
+#### Provided services
+- `org.eclipse.edc.issuerservice.spi.participant.store.ParticipantStore`
+
+#### Referenced (injected) services
+_None_
+
+Module `issuerservice-participant-store-sql`
+--------------------------------------------
+**Artifact:** org.eclipse.edc:issuerservice-participant-store-sql:0.12.0-SNAPSHOT
+
+**Categories:** _None_
+
+### Extension points
+_None_
+
+### Extensions
+#### Class: `org.eclipse.edc.issuerservice.store.sql.participant.SqlParticipantStoreExtension`
+**Name:** "IssuerService Participant SQL Store Extension"
+
+**Overview:** No overview provided.
+
+
+### Configuration
+
+| Key                                    | Required | Type     | Default   | Pattern | Min | Max | Description               |
+| -------------------------------------- | -------- | -------- | --------- | ------- | --- | --- | ------------------------- |
+| `edc.sql.store.participant.datasource` | `*`      | `string` | `default` |         |     |     | The datasource to be used |
+
+#### Provided services
+- `org.eclipse.edc.issuerservice.spi.participant.store.ParticipantStore`
+
+#### Referenced (injected) services
+- `org.eclipse.edc.transaction.datasource.spi.DataSourceRegistry` (required)
+- `org.eclipse.edc.transaction.spi.TransactionContext` (required)
+- `org.eclipse.edc.spi.types.TypeManager` (required)
+- `org.eclipse.edc.sql.QueryExecutor` (required)
+- `org.eclipse.edc.issuerservice.store.sql.participant.ParticipantStoreStatements` (optional)
+- `org.eclipse.edc.sql.bootstrapper.SqlSchemaBootstrapper` (required)
+
+Module `issuerservice-participants`
+-----------------------------------
+**Artifact:** org.eclipse.edc:issuerservice-participants:0.12.0-SNAPSHOT
+
+**Categories:** _None_
+
+### Extension points
+_None_
+
+### Extensions
+#### Class: `org.eclipse.edc.issuerservice.participant.ParticipantServiceExtension`
+**Name:** "IssuerService Participant Service Extension"
+
+**Overview:** No overview provided.
+
+
+### Configuration_None_
+
+#### Provided services
+- `org.eclipse.edc.issuerservice.spi.participant.ParticipantService`
+
+#### Referenced (injected) services
+- `org.eclipse.edc.transaction.spi.TransactionContext` (required)
+- `org.eclipse.edc.issuerservice.spi.participant.store.ParticipantStore` (required)
 
 Module `keypair-api`
 --------------------
@@ -558,10 +719,10 @@ _None_
 
 ### Configuration
 
-| Key                 | Required | Type     | Default | Pattern | Min | Max | Description |
-| ------------------- | -------- | -------- | ------- | ------- | --- | --- | ----------- |
-| `web.http.did.port` | `*`      | `string` | `10100` |         |     |     |             |
-| `web.http.did.path` | `*`      | `string` | `/`     |         |     |     |             |
+| Key                 | Required | Type     | Default | Pattern | Min | Max | Description              |
+| ------------------- | -------- | -------- | ------- | ------- | --- | --- | ------------------------ |
+| `web.http.did.port` | `*`      | `string` | `10100` |         |     |     | Port for did api context |
+| `web.http.did.path` | `*`      | `string` | `/`     |         |     |     | Path for did api context |
 
 #### Provided services
 - `org.eclipse.edc.identityhub.spi.did.events.DidDocumentObservable`
@@ -574,6 +735,31 @@ _None_
 - `org.eclipse.edc.identityhub.spi.did.DidWebParser` (optional)
 - `java.time.Clock` (required)
 - `org.eclipse.edc.spi.event.EventRouter` (required)
+
+Module `participant-api`
+------------------------
+**Artifact:** org.eclipse.edc:participant-api:0.12.0-SNAPSHOT
+
+**Categories:** _None_
+
+### Extension points
+_None_
+
+### Extensions
+#### Class: `org.eclipse.edc.issuerservice.api.admin.participant.IssuerParticipantAdminApiExtension`
+**Name:** "Issuer Service Participant Admin API Extension"
+
+**Overview:** No overview provided.
+
+
+### Configuration_None_
+
+#### Provided services
+_None_
+
+#### Referenced (injected) services
+- `org.eclipse.edc.web.spi.WebService` (required)
+- `org.eclipse.edc.issuerservice.spi.participant.ParticipantService` (required)
 
 Module `participant-context-api`
 --------------------------------
@@ -620,10 +806,10 @@ _None_
 
 ### Configuration
 
-| Key                          | Required | Type     | Default             | Pattern | Min | Max | Description |
-| ---------------------------- | -------- | -------- | ------------------- | ------- | --- | --- | ----------- |
-| `web.http.presentation.port` | `*`      | `string` | `13131`             |         |     |     |             |
-| `web.http.presentation.path` | `*`      | `string` | `/api/presentation` |         |     |     |             |
+| Key                          | Required | Type     | Default             | Pattern | Min | Max | Description                       |
+| ---------------------------- | -------- | -------- | ------------------- | ------- | --- | --- | --------------------------------- |
+| `web.http.presentation.port` | `*`      | `string` | `13131`             |         |     |     | Port for presentation api context |
+| `web.http.presentation.path` | `*`      | `string` | `/api/presentation` |         |     |     | Path for presentation api context |
 
 #### Provided services
 _None_
@@ -711,11 +897,11 @@ _None_
 
 ### Configuration
 
-| Key                                      | Required | Type     | Default     | Pattern | Min | Max | Description |
-| ---------------------------------------- | -------- | -------- | ----------- | ------- | --- | --- | ----------- |
-| `edc.sts.account.api.url`                | `*`      | `string` | ``          |         |     |     |             |
-| `edc.sts.accounts.api.auth.header.name`  | `*`      | `string` | `x-api-key` |         |     |     |             |
-| `edc.sts.accounts.api.auth.header.value` | `*`      | `string` | ``          |         |     |     |             |
+| Key                                      | Required | Type     | Default     | Pattern | Min | Max | Description                                                                                    |
+| ---------------------------------------- | -------- | -------- | ----------- | ------- | --- | --- | ---------------------------------------------------------------------------------------------- |
+| `edc.sts.account.api.url`                | `*`      | `string` | ``          |         |     |     | The base URL of the remote STS Accounts API                                                    |
+| `edc.sts.accounts.api.auth.header.name`  | `*`      | `string` | `x-api-key` |         |     |     | The name of the Auth header to use. Could be 'Authorization', some custom auth header, etc.    |
+| `edc.sts.accounts.api.auth.header.value` | `*`      | `string` | ``          |         |     |     | The value of the Auth header to use. Currently we only support static values, e.g. tokens etc. |
 
 #### Provided services
 - `org.eclipse.edc.identityhub.spi.participantcontext.StsAccountService`
